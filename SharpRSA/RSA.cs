@@ -31,7 +31,7 @@ namespace SharpRSA
                     break;
                 } else
                 {
-                    Utils.IncrementByteArray(ref randomBytes);
+                    Utils.IncrementByteArray(ref randomBytes, 2);
                 }
             
             }

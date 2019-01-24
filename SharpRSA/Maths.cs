@@ -14,7 +14,7 @@ namespace SharpRSA
         /// </summary>
         /// <param name="num">The number to check for being likely prime.</param>
         /// <returns></returns>
-        public static bool RabinMillerTest(ulong n)
+        public static bool RabinMillerTest(BigInteger n, int accuracy_amt)
         {
             //Zero and one are not prime.
             if (n<2)
@@ -28,46 +28,71 @@ namespace SharpRSA
 
             //Finding n-1 = 2^k * m.
             long k = 1;
-            long m = 1;
-            double previousResult = 0;
+            int m = 1;
+            BigFloat previousResult = 0;
             while (true)
             {
-                double result = (n - 1) / (Math.Pow(2, k));
+                BigFloat n_float = new BigFloat(n);
+                BigFloat k_exp = BigFloat.Parse((Math.Pow(2, k)).ToString());
+
+                var result = BigFloat.Divide(n_float, k_exp);
                 
                 //Checking for a decimal return, breaking if so.
                 if (result%1!=0)
                 {
                     //Returning to previous K value, which provided an integer.
                     k--;
-                    m = (long)previousResult;
+                    m = int.Parse(previousResult.ToString());
                     break;
                 }
                 
                 //Incrementing and setting variables for next loop.
                 previousResult = result;
                 k++;
-
-                //Checking if we should just return false due to the loop being too large.
-                if (k>9999999999999999)
-                {
-                    Console.WriteLine("Loop cancelled due to infinite looping of k value.");
-                    return false;
-                }
             }
 
-            //Picking a random number between 1 and n-1.
-            byte[] randBytes = new byte[63];
-            rand.NextBytes(randBytes);
-            
+            //Looping k times, performing modulus.
+            for (int i = 0; i < accuracy_amt; i++)
+            {
+                //Picking a random number between 1 and n-2.
+                byte[] randBytes = new byte[63];
+                rand.NextBytes(randBytes);
+                BigInteger offset = new BigInteger(randBytes);
 
+                //Random number a has been selected.
+                BigInteger a = n - offset;
+
+                //Performing test operation a^m % n
+                var x = BigInteger.Pow(a, m) % n;
+                if (x==1 || x==n-1)
+                {
+                    //Could still be prime, continue.
+                    continue;
+                }
+
+                //Checking for the possibility of primality after x!=1 and x!=n-1.
+                for (int j=0; j<k-1; j++)
+                {
+                    x = BigInteger.Pow(x, 2) % n;
+                    if (x==n-1)
+                    {
+                        continue;
+                    }
+                }
+
+                //Not prime, with acc_amt*someconstant certainty.
+                return false;
+            }
+
+            //Loop has finished without finding a composite, return prime.
             return true;
         }
 
         //An overload wrapper for the RabinMillerTest which accepts a byte array.
-        public static bool RabinMillerTest(byte[] bytes)
+        public static bool RabinMillerTest(byte[] bytes, int acc_amt)
         {
-            ulong b = BitConverter.ToUInt64(bytes, 0);
-            return RabinMillerTest(b);
+            BigInteger b = new BigInteger(bytes);
+            return RabinMillerTest(b, acc_amt);
         }
     }
 }

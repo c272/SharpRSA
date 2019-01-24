@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Numerics;
 
 namespace SharpRSA
 {
     public class SharpRSA
     {
-        public ulong FindPrime(int bitlength)
+        public BigInteger FindPrime(int bitlength)
         {
             //Generating a random number of bit length half of the given parameter.
             bitlength = bitlength / 2;
@@ -21,11 +22,22 @@ namespace SharpRSA
             //This ensures the number is odd, and ensures the high bit of N is set when generating keys.
             Utils.SetBitInByte(0, ref randomBytes[7]);
 
-            //Performing a Rabin-Miller primality test.
-            bool isPrime = Maths.RabinMillerTest(randomBytes);
+            while (true)
+            {
+                //Performing a Rabin-Miller primality test.
+                bool isPrime = Maths.RabinMillerTest(randomBytes, 20);
+                if (isPrime)
+                {
+                    break;
+                } else
+                {
+                    Utils.IncrementByteArray(ref randomBytes);
+                }
+            
+            }
 
             //placeholder
-            return new ulong();
+            return new BigInteger();
         }
     }
 }

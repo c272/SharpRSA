@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Numerics;
 
 namespace SharpRSA
 {
@@ -15,6 +16,16 @@ namespace SharpRSA
         {
             byte mask = (byte)(1 << bitNumFromRight);
             toSet |= mask;
+        }
+
+        /// <summary>
+        /// Increments the byte array as a whole, by a given amount.
+        /// </summary>
+        public static void IncrementByteArray(ref byte[] randomBytes, int amt)
+        {
+            BigInteger n = new BigInteger(randomBytes);
+            n += amt;
+            randomBytes = n.ToByteArray();
         }
     }
 }

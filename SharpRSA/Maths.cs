@@ -17,10 +17,16 @@ namespace SharpRSA
         public static bool RabinMillerTest(BigInteger n, int accuracy_amt)
         {
             //Zero and one are not prime.
-            if (n<2)
+            if (n < 2)
             {
                 return false;
-            } else if (n%2==0)
+            }
+            else if (n == 2)
+            {
+                //Catching for two.
+                return true;
+            }
+            else if (n % 2 == 0)
             {
                 //No multiples of two.
                 return false;

@@ -11,13 +11,22 @@ namespace UnitTests
     {
         MATHS_TEST,
         UTILS_TEST,
-        RSA_TEST
+        RSA_TEST,
+        ALL
     }
 
     public class Test
     {
+        public Test(TestDelegate t, TestType tt, string tname)
+        {
+            testMethod = t;
+            type = tt;
+            name = tname;
+        }
+
         //Delegate for calling test bool.
         public TestDelegate testMethod;
         public TestType type;
+        public string name;
     }
 }

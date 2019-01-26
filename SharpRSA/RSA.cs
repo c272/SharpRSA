@@ -33,11 +33,10 @@ namespace SharpRSA
                 {
                     Utils.IncrementByteArray(ref randomBytes, 2);
                 }
-            
             }
 
             //placeholder
-            return new BigInteger();
+            return new BigInteger(randomBytes);
         }
     }
 }

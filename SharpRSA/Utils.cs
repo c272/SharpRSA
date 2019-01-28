@@ -19,12 +19,24 @@ namespace SharpRSA
         }
 
         /// <summary>
-        /// Increments the byte array as a whole, by a given amount.
+        /// Increments the byte array as a whole, by a given amount. Assumes little endian.
+        /// Assumes unsigned randomBytes.
         /// </summary>
-        public static void IncrementByteArray(ref byte[] randomBytes, int amt)
+        public static void IncrementByteArrayLE(ref byte[] randomBytes, int amt)
         {
             BigInteger n = new BigInteger(randomBytes);
             n += amt;
+            randomBytes = n.ToByteArray();
+        }
+
+        /// <summary>
+        /// Decrements the byte array as a whole, by a given amount. Assumes little endian.
+        /// Assumes unsigned randomBytes.
+        /// </summary>
+        public static void DecrementByteArrayLE(ref byte[] randomBytes, int amt)
+        {
+            BigInteger n = new BigInteger(randomBytes);
+            n -= amt;
             randomBytes = n.ToByteArray();
         }
     }

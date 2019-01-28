@@ -95,12 +95,16 @@ namespace UnitTests
             bool result = test.testMethod();
             if (!result)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("TEST FAILED! Test \"" + test.name + "\" returned a negative result.");
+                Console.ResetColor();
                 failed.Add(test);
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(test.name + " test passed.");
+                Console.ResetColor();
                 passed++;
             }
         }

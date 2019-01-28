@@ -27,5 +27,27 @@ namespace SharpRSA
             n += amt;
             randomBytes = n.ToByteArray();
         }
+
+        /// <summary>
+        /// Decrements the byte array as a whole, by a given amount.
+        /// </summary>
+        public static void DecrementByteArray(ref byte[] randomBytes, int amt)
+        {
+            BigInteger n = new BigInteger(randomBytes);
+            n -= amt;
+            randomBytes = n.ToByteArray();
+        }
+
+        /// <summary>
+        /// Sets the byte array to the maximum value.
+        /// </summary>
+        /// <param name="bytes">The reference for the byte array.</param>
+        public static void SetToMaxValue(ref byte[] bytes)
+        {
+            for (int i=0; i<bytes.Length; i++)
+            {
+                bytes[i] = 0xFF;
+            }
+        }
     }
 }

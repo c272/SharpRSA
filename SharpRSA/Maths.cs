@@ -61,7 +61,7 @@ namespace SharpRSA
             for (int i = 0; i < accuracy_amt; i++)
             {
                 //Picking a random number between 1 and n-2.
-                byte[] randBytes = new byte[63];
+                byte[] randBytes = new byte[n.ToByteArray().Length-1];
                 rand.NextBytes(randBytes);
                 BigInteger offset = new BigInteger(randBytes);
 

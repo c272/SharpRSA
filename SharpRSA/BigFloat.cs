@@ -9,7 +9,7 @@ using System.Numerics;
 //https://raw.githubusercontent.com/Osinko/BigFloat/master/src/BigFloat.cs
 
 [Serializable]
-class BigFloat : IComparable, IComparable<BigFloat>, IEquatable<BigFloat>
+public class BigFloat : IComparable, IComparable<BigFloat>, IEquatable<BigFloat>
 {
     private BigInteger numerator;
     private BigInteger denominator;

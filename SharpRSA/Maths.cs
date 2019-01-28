@@ -100,5 +100,78 @@ namespace SharpRSA
             BigInteger b = new BigInteger(bytes);
             return RabinMillerTest(b, acc_amt);
         }
+
+        /// <summary>
+        /// Performs an Extended Euclidian algorithm on parameters a and b, returning d,
+        /// such that d = gcd(a,b);
+        /// </summary>
+        /// <returns>D, such that D = gcd(a,b).</returns>
+        public static BigFloat ExtendedEuclidean(BigFloat a, BigFloat b)
+        {
+            //Local variables.
+            var d = new BigFloat();
+            BigFloat x, y, x1, x2, y1, y2, q, r = new BigFloat();
+
+            //Sanity checks to make sure no invalid inputs are passed.
+            if (a<b) { throw new Exception("A cannot be smaller than B when computing an extended euclidian."); }
+            if (a<0 || b<0) { throw new Exception("Neither values can be negative when computing an extended euclidian."); }
+
+            //Checking for b=0, if so, end right there, d is a.
+            if (b==0)
+            {
+                d = a;
+                return d;
+            }
+
+            //Non-zero, loop while b>0 and compute.
+            x1 = 0;
+            x2 = 1;
+            y1 = 1;
+            y2 = 0;
+            while (b>0)
+            {
+                //Finding R value as a-floor(a/b)*b.
+                q = BigFloat.Floor(a / b);
+                r = a - q * b;
+
+                //Setting X and Y values by (component2)-floor(a/b)*(component1)
+                x = x2 - q * x1;
+                y = y2 - q * y1;
+                a = b; b = r;
+
+                //Setting x and y values for next loop.
+                x2 = x1;
+                x1 = x;
+                y2 = y1;
+                y1 = y;
+            }
+
+            //Loop finished, so d=a, return.
+            d = a;
+            return d;
+        }
+
+        /// <summary>
+        /// Returns the greatest common denominator of both BigIntegers given.
+        /// </summary>
+        /// <returns>The GCD of A and B.</returns>
+        public static BigInteger GCD(BigInteger a, BigInteger b)
+        {
+            //Looping until the numbers are zero values.
+            while (a != 0 && b != 0)
+            {
+                if (a > b)
+                {
+                    a %= b;
+                }
+                else
+                {
+                    b %= a;
+                }
+            }
+
+            //Returning.
+            return a == 0 ? b : a;
+        }
     }
 }

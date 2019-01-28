@@ -1,10 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace SharpRSA
 {
     public class RSA
     {
+
+        public static Dictionary<BigInteger, BigInteger> GenerateKeyPair(int bitlength)
+        {
+            //Generating primes, checking if the GCD of (n-1)(p-1) and e is 1.
+            BigInteger q,p,n,x = new BigInteger();
+            BigFloat d = new BigFloat();
+            while (true)
+            {
+                q = FindPrime(bitlength / 2);
+                p = FindPrime(bitlength / 2);
+                n = q*p;
+                x = (p - 1) * (q - 1);
+                
+                //Checking for GCD = 1.
+                if (Maths.GCD(Constants.e, x)==1)
+                {
+                    //Success! Found p and q.
+                    break;
+                }
+            }
+
+            //Computing D such that ed = 1%x.
+            d = Maths.ExtendedEuclidean((1 / Constants.e), x);
+
+            //Returning results.
+            var results = new Dictionary<BigInteger, BigInteger>();
+            //placeholder
+            return results;
+        }
+
         //Finds a prime of the given bit length, to be used as n and p in RSA key calculations.
         public static BigInteger FindPrime(int bitlength)
         {

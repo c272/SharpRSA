@@ -5,6 +5,7 @@ namespace SharpRSA
 {
     public class RSA
     {
+        //Finds a prime of the given bit length, to be used as n and p in RSA key calculations.
         public static BigInteger FindPrime(int bitlength)
         {
             //Generating a random number of bit length.

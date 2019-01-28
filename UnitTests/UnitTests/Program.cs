@@ -78,8 +78,27 @@ namespace UnitTests
                 }
             }
 
+            //Switching for % statistics colour.
+            Console.Write("\nPercentage of Passing Tests: ");
+            float percentagePassed = (passed / (passed + failed.Count)) * 100;
+            if (percentagePassed>90)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+            } else if (percentagePassed>70)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+            } else if (percentagePassed>50)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+            } else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+            }
+
             //Printing statistics.
-            Console.WriteLine("\n--------------\nTESTS COMPLETED: {0}\nTESTS PASSED: {1}\nTESTS FAILED: {2}\n--------------", failed.Count + passed, passed, failed.Count);
+            Console.Write(percentagePassed + "%\n");
+            Console.ResetColor();
+            Console.WriteLine("--------------\nTESTS COMPLETED: {0}\nTESTS PASSED: {1}\nTESTS FAILED: {2}\n--------------", failed.Count + passed, passed, failed.Count);
             if (failed.Count != 0)
             {
                 Console.WriteLine("Tests Failed:\n");
@@ -95,12 +114,16 @@ namespace UnitTests
             bool result = test.testMethod();
             if (!result)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("TEST FAILED! Test \"" + test.name + "\" returned a negative result.");
+                Console.ResetColor();
                 failed.Add(test);
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(test.name + " test passed.");
+                Console.ResetColor();
                 passed++;
             }
         }

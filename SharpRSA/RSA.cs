@@ -1,33 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace SharpRSA
 {
-    public class RSA {
-    
-        /// <summary>
-        /// Finds a prime of the given bit length.
-        /// Does NOT work on small bitlength values.
-        /// </summary>
-        /// <param name="bitlength"></param>
-        /// <returns></returns>
+    public class RSA
+    {
+
+        public static Dictionary<BigInteger, BigInteger> GenerateKeyPair(int bitlength)
+        {
+            //Generating primes, checking if the GCD of (n-1)(p-1) and e is 1.
+            BigInteger q,p,n,x = new BigInteger();
+            BigFloat d = new BigFloat();
+            while (true)
+            {
+                q = FindPrime(bitlength / 2);
+                p = FindPrime(bitlength / 2);
+                n = q*p;
+                x = (p - 1) * (q - 1);
+                
+                //Checking for GCD = 1.
+                if (Maths.GCD(Constants.e, x)==1)
+                {
+                    //Success! Found p and q.
+                    break;
+                }
+            }
+
+            //Computing D such that ed = 1%x.
+            d = Maths.ExtendedEuclidean((1 / Constants.e), x);
+
+            //Returning results.
+            var results = new Dictionary<BigInteger, BigInteger>();
+            //placeholder
+            return results;
+        }
+
+        //Finds a prime of the given bit length, to be used as n and p in RSA key calculations.
         public static BigInteger FindPrime(int bitlength)
         {
-            //Generating a random number of bit length half of the given parameter.
+            //Generating a random number of bit length.
             if (bitlength%8 != 0)
             {
                 throw new Exception("Invalid bit length for key given, cannot generate primes.");
             }
 
             //Filling bytes with pseudorandom.
-            byte[] randomBytes = new byte[bitlength / 8];
+            byte[] randomBytes = new byte[(bitlength / 8)+1];
             Maths.rand.NextBytes(randomBytes);
+            //Making the extra byte 0x0 so the BigInts are unsigned (little endian).
+            randomBytes[randomBytes.Length - 1] = 0x0;
 
             //Setting the bottom bit and top two bits of the number.
             //This ensures the number is odd, and ensures the high bit of N is set when generating keys.
-            Utils.SetBitInByte(0, ref randomBytes[randomBytes.Length-1]);
-            Utils.SetBitInByte(7, ref randomBytes[0]);
-            Utils.SetBitInByte(6, ref randomBytes[0]);
+            Utils.SetBitInByte(0, ref randomBytes[0]);
+            Utils.SetBitInByte(7, ref randomBytes[randomBytes.Length - 2]);
+            Utils.SetBitInByte(6, ref randomBytes[randomBytes.Length - 2]);
 
             while (true)
             {
@@ -38,24 +66,25 @@ namespace SharpRSA
                     break;
                 } else
                 {
-                    Utils.IncrementByteArray(ref randomBytes, 2);
-                    var b = new BigInteger(randomBytes);
-
-                    //Checking for limit reached.
+                    Utils.IncrementByteArrayLE(ref randomBytes, 2);
                     var upper_limit = new byte[randomBytes.Length];
-                    Utils.SetToMaxValue(ref upper_limit);
-                    var lower_limit = upper_limit;
-                    Utils.DecrementByteArray(ref lower_limit, 10);
-                    
-                    if (b<new BigInteger(upper_limit) && b>new BigInteger(lower_limit))
+
+                    //Clearing upper bit for unsigned, creating upper and lower bounds.
+                    upper_limit[randomBytes.Length - 1] = 0x0;
+                    BigInteger upper_limit_bi = new BigInteger(upper_limit);
+                    BigInteger lower_limit = upper_limit_bi - 20;
+                    BigInteger current = new BigInteger(randomBytes);
+
+                    if (lower_limit<current && current<upper_limit_bi)
                     {
                         //Failed to find a prime, returning -1.
+                        //Reached limit with no solutions.
                         return new BigInteger(-1);
                     }
                 }
             }
 
-            //Returning number.
+            //Returning working BigInt.
             return new BigInteger(randomBytes);
         }
     }

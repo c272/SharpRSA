@@ -19,9 +19,10 @@ namespace SharpRSA
         }
 
         /// <summary>
-        /// Increments the byte array as a whole, by a given amount.
+        /// Increments the byte array as a whole, by a given amount. Assumes little endian.
+        /// Assumes unsigned randomBytes.
         /// </summary>
-        public static void IncrementByteArray(ref byte[] randomBytes, int amt)
+        public static void IncrementByteArrayLE(ref byte[] randomBytes, int amt)
         {
             BigInteger n = new BigInteger(randomBytes);
             n += amt;
@@ -29,25 +30,14 @@ namespace SharpRSA
         }
 
         /// <summary>
-        /// Decrements the byte array as a whole, by a given amount.
+        /// Decrements the byte array as a whole, by a given amount. Assumes little endian.
+        /// Assumes unsigned randomBytes.
         /// </summary>
-        public static void DecrementByteArray(ref byte[] randomBytes, int amt)
+        public static void DecrementByteArrayLE(ref byte[] randomBytes, int amt)
         {
             BigInteger n = new BigInteger(randomBytes);
             n -= amt;
             randomBytes = n.ToByteArray();
-        }
-
-        /// <summary>
-        /// Sets the byte array to the maximum value.
-        /// </summary>
-        /// <param name="bytes">The reference for the byte array.</param>
-        public static void SetToMaxValue(ref byte[] bytes)
-        {
-            for (int i=0; i<bytes.Length; i++)
-            {
-                bytes[i] = 0xFF;
-            }
         }
     }
 }

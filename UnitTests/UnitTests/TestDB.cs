@@ -5,8 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using SharpRSA;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 
 namespace UnitTests
 {
@@ -17,12 +15,10 @@ namespace UnitTests
         {
             //Adding Maths unit tests.
             AddTest(RabinMillerKnownPrimes, TestType.MATHS_TEST, "Rabin Miller Known Primes");
-
-            //Adding RSA unit tests.
-            AddTest(FindPrimes, TestType.RSA_TEST, "Find Primes by Rabin Miller");
+            AddTest(FindPrimeSmallbit, TestType.RSA_TEST, "Find Prime Smallbit");
+            AddTest(FindPrimeLargebit, TestType.RSA_TEST, "Find Prime Largebit");
         }
 
-        //Adds a test to the database.
         public void AddTest(TestDelegate t, TestType type, string n)
         {
             tests.Add(new Test(t, type, n));
@@ -31,8 +27,7 @@ namespace UnitTests
         //Unit test methods start here.
         public bool RabinMillerKnownPrimes()
         {
-            int[] primes = { 2, 5, 7, 11, 13, 15485867, 32452867, 982451653 };
-            foreach (var prime in primes) {
+            foreach (var prime in Constants.primes) {
                 //Testing if known primes appear as such.
                 bool isPrime = Maths.RabinMillerTest(new BigInteger(prime), 10);
                 if (!isPrime)
@@ -41,25 +36,48 @@ namespace UnitTests
                     return false;
                 }
             }
+            Console.WriteLine("All known primes detected and correct.");
             return true;
         }
 
-        public bool FindPrimes()
+        //Test the "FindPrime" method with a small bit pool in the RSA class.
+        public bool FindPrimeSmallbit()
         {
-            //Generating a random prime, for a small bit length for testing purposes.
-            for (int i=0; i<20; i++)
+            for (int i=0; i<10; i++)
             {
-                if (RSA.FindPrime(16)==-1)
+                BigInteger prime = RSA.FindPrime(24);
+                if (prime!=-1)
                 {
-                    Console.WriteLine("Find primes pass "+(i+1)+": FAILURE");
+                    Console.WriteLine("Smallbit Test " + i + ": PASSED, found prime "+prime.ToString()+".");
+                    return true;
                 } else
                 {
-                    Console.WriteLine("Find primes pass "+(i+1)+": SUCCESS");
-                    return true;
+                    Console.WriteLine("Smallbit Test " + i + ": FAIL");
                 }
             }
 
-            //Failed to find one.
+            //No primes found in 10 tries, test failed.
+            return false;
+        }
+
+        //Test the "FindPrime" method with a large bit pool in the RSA class.
+        public bool FindPrimeLargebit()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                BigInteger prime = RSA.FindPrime(512);
+                if (prime != -1)
+                {
+                    Console.WriteLine("Largebit Test " + i + ": PASSED, found prime " + prime.ToString().Substring(0, 20) + "...");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Largebit Test " + i + ": FAIL");
+                }
+            }
+
+            //No primes found in 10 tries, test failed.
             return false;
         }
     }

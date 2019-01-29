@@ -45,13 +45,13 @@ namespace SharpRSA
         public readonly int e = Constants.e;
 
         //Optional null variable D.
-        public readonly BigFloat d;
+        public readonly BigInteger d;
 
         //Variable for key type.
         public KeyType type;
 
         //Constructor that sets values once, values then permanently unwriteable.
-        public Key(BigInteger n_, KeyType type_, BigFloat d_=null)
+        public Key(BigInteger n_, KeyType type_, object d_=null)
         {
             //Catching edge cases for invalid input.
             if (type_==KeyType.PRIVATE && d_==null) { throw new Exception("Constructed as private, but no d value provided."); }
@@ -59,7 +59,9 @@ namespace SharpRSA
             //Setting values.
             n = n_;
             type = type_;
-            d = d_;
+
+            //Converting d_ to d.
+            d = (BigInteger)d_;
         }
     }
 

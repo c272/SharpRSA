@@ -28,7 +28,7 @@ namespace SharpRSA
             }
 
             //Computing D such that ed = 1%x.
-            d = Maths.ExtendedEuclidean((1 / Constants.e), x);
+            d = Maths.ExtendedEuclidean(Constants.e, x);
 
             //Returning results.
             return KeyPair.Generate(n, d);
@@ -120,8 +120,36 @@ namespace SharpRSA
                 throw new Exception("Private key given for decrypt is classified as non-private in instance.");
             }
 
-            //Converting bytes to an unsigned integer, sending for decrypt.
-            
+            //Padding bytes to ensure unsigned int comparison.
+            byte[] bytes_padded = new byte[private_key.n.ToByteArray().Length];
+            Array.Copy(bytes, bytes_padded, bytes.Length);
+
+            //Decrypting.
+            var plain_bigint = new BigInteger();
+            var padded_bigint = new BigInteger(bytes_padded);
+            plain_bigint = BigInteger.ModPow(padded_bigint, private_key.d, private_key.n);
+
+            //Removing all padding bytes, including the marker 0xFF.
+            byte[] plain_bytes = plain_bigint.ToByteArray();
+            int lengthToCopy=-1;
+            for (int i=plain_bytes.Length-1; i>=0; i--) 
+            {
+                if (plain_bytes[i]==0xFF)
+                {
+                    lengthToCopy = i;
+                }
+            }
+
+            //Checking for a failure to find marker byte.
+            if (lengthToCopy==-1)
+            {
+                throw new Exception("Marker byte for padding (0xFF) not found in plain bytes. Decryption failed?");
+            }
+
+            //Copying into return array, returning.
+            byte[] return_array = new byte[lengthToCopy];
+            Array.Copy(plain_bytes, return_array, lengthToCopy);
+            return return_array;
         }
     }
 }

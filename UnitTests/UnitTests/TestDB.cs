@@ -16,10 +16,12 @@ namespace UnitTests
             //Adding Maths unit tests.
             AddTest(RabinMillerKnownPrimes, TestType.MATHS_TEST, "Rabin Miller Known Primes");
             AddTest(BigIntegerPaddingConsistency, TestType.MATHS_TEST, "BigInt Padding Consistency");
+            AddTest(EEModInv, TestType.MATHS_TEST, "Modular Inverse (Extended Euclidian)");
 
             //Adding RSA unit tests.
             AddTest(FindPrimeSmallbit, TestType.RSA_TEST, "Find Prime Smallbit");
             AddTest(FindPrimeLargebit, TestType.RSA_TEST, "Find Prime Largebit");
+            AddTest(RSAKeyGen, TestType.RSA_TEST, "RSA Keygen Validity");
         }
 
         public void AddTest(TestDelegate t, TestType type, string n)
@@ -111,13 +113,47 @@ namespace UnitTests
             
         }
 
+        //Testing the encryption and decryption methods to check small byte packages.
+        public bool RSASmallbytes()
+        {
+            byte[] package = { 0xFF, 0x2A, 0xBF, 0x00, 0x00 };
+            return false;
+            
+        }
+
+        //Testing the Extended Euclidian modular inverse function.
+        public bool EEModInv()
+        {
+            BigInteger result = Maths.ExtendedEuclidean(129031, 13);
+            if (result!=11)
+            {
+                return false;
+            }
+            return true;
+        }
+
         //Testing the key generation method to check valid keys are returned.
         public bool RSAKeyGen()
         {
             //Generating a test 1024 bit keypair.
-            KeyPair keys = RSA.GenerateKeyPair(1024);
-            return true;
+            KeyPair keys = RSA.GenerateKeyPair(64);
 
+            //Setting up a payload, testing for perfect encrypt/decrypt.
+            byte[] package = { 0xFF, 0x2A, 0xBF, 0x00, 0x00 };
+            byte[] encrypted = RSA.EncryptBytes(package, keys.public_);
+            byte[] decrypted = RSA.DecryptBytes(encrypted, keys.private_);
+
+            //Checking decrypt.
+            if (decrypted.SequenceEqual(package))
+            {
+                return true;
+            } else
+            {
+                Console.WriteLine("Returned bytes from RSA encrypt/decrypt differed, resulting in failure.");
+                Console.WriteLine("ORIGINAL BYTES: " + Utils.RawByteString(package));
+                Console.WriteLine("FAILED BYTES:" + Utils.RawByteString(decrypted));
+                return false;
+            }
         }
     }
 }

@@ -26,9 +26,9 @@ namespace SharpRSA
                 //Catching for two.
                 return true;
             }
-            else if (n % 2 == 0)
+            else if (n % 2 == 0 || n % 3 == 0 || n % 5 == 0 || n % 7 == 0 || n % 11 == 0) 
             {
-                //No multiples of two.
+                //No multiples of two, three, five, seven, eleven.
                 return false;
             }
 
@@ -109,7 +109,7 @@ namespace SharpRSA
         public static BigInteger ExtendedEuclidean(BigInteger a, BigInteger b)
         {
             //Modular inverse can be executed using a BigInteger class function.
-            return BigInteger.ModPow(a, -1, b);
+            return BigInteger.ModPow(a, b-1, b);
         }
 
         /// <summary>

@@ -11,8 +11,8 @@ namespace SharpRSA
     public class KeyPair
     {
         //After assignment, the keys cannot be touched.
-        private readonly Key private_;
-        private readonly Key public_;
+        public readonly Key private_;
+        public readonly Key public_;
         public KeyPair(Key private__, Key public__)
         {
             private_ = private__;
@@ -25,7 +25,7 @@ namespace SharpRSA
         /// <param name="n">The "n" value from RSA calculations.</param>
         /// <param name="d">The "d" value from RSA calculations.</param>
         /// <returns></returns>
-        public static KeyPair Generate(BigInteger n, BigFloat d)
+        public static KeyPair Generate(BigInteger n, BigInteger d)
         {
             Key public_ = new Key(n, KeyType.PUBLIC);
             Key private_ = new Key(n, KeyType.PRIVATE, d);
@@ -51,17 +51,26 @@ namespace SharpRSA
         public KeyType type;
 
         //Constructor that sets values once, values then permanently unwriteable.
-        public Key(BigInteger n_, KeyType type_, object d_=null)
+        public Key(BigInteger n_, KeyType type_, BigInteger d_)
         {
             //Catching edge cases for invalid input.
-            if (type_==KeyType.PRIVATE && d_==null) { throw new Exception("Constructed as private, but no d value provided."); }
+            if (type_==KeyType.PRIVATE && d_<2) { throw new Exception("Constructed as private, but invalid d value provided."); }
 
             //Setting values.
             n = n_;
             type = type_;
+            d = d_;
+        }
 
-            //Converting d_ to d.
-            d = (BigInteger)d_;
+        //Overload constructor for key with no d value.
+        public Key(BigInteger n_, KeyType type_)
+        {
+            //Catching edge cases for invalid input.
+            if (type_ == KeyType.PRIVATE) { throw new Exception("Constructed as private, but no d value provided."); }
+
+            //Setting values.
+            n = n_;
+            type = type_;
         }
     }
 

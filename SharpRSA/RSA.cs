@@ -10,25 +10,26 @@ namespace SharpRSA
         public static KeyPair GenerateKeyPair(int bitlength)
         {
             //Generating primes, checking if the GCD of (n-1)(p-1) and e is 1.
-            BigInteger q,p,n,x = new BigInteger();
-            BigFloat d = new BigFloat();
-            while (true)
+            BigInteger q,p,n,x,d = new BigInteger();
+            do
             {
                 q = FindPrime(bitlength / 2);
+            } while (q % Constants.e == 1);
+            do
+            {
                 p = FindPrime(bitlength / 2);
-                n = q*p;
-                x = (p - 1) * (q - 1);
-                
-                //Checking for GCD = 1.
-                if (Maths.GCD(Constants.e, x)==1)
-                {
-                    //Success! Found p and q.
-                    break;
-                }
-            }
+            } while (p % Constants.e == 1);
+
+            n = q * p;
+            x = (p - 1) * (q - 1);
 
             //Computing D such that ed = 1%x.
-            d = Maths.ExtendedEuclidean(Constants.e, x);
+            d = BigIntegerExtensions.modinv(Constants.e, x);
+
+            if ((d*Constants.e)%x!=1) {
+                Console.WriteLine("INVALID D VALUE");
+                Console.WriteLine(d * Constants.e + " != " + 1 % x);
+            }
 
             //Returning results.
             return KeyPair.Generate(n, d);
@@ -58,7 +59,7 @@ namespace SharpRSA
             while (true)
             {
                 //Performing a Rabin-Miller primality test.
-                bool isPrime = Maths.RabinMillerTest(randomBytes, 20);
+                bool isPrime = Maths.RabinMillerTest(randomBytes, 40);
                 if (isPrime)
                 {
                     break;

@@ -10,8 +10,27 @@ namespace SharpRSA
     /// </summary>
     public class KeyPair
     {
-        public Key private_;
-        public Key public_;
+        //After assignment, the keys cannot be touched.
+        private readonly Key private_;
+        private readonly Key public_;
+        public KeyPair(Key private__, Key public__)
+        {
+            private_ = private__;
+            public_ = public__;
+        }
+
+        /// <summary>
+        /// Returns a keypair based on the calculated n and d values from RSA.
+        /// </summary>
+        /// <param name="n">The "n" value from RSA calculations.</param>
+        /// <param name="d">The "d" value from RSA calculations.</param>
+        /// <returns></returns>
+        public static KeyPair Generate(BigInteger n, BigFloat d)
+        {
+            Key public_ = new Key(n, KeyType.PUBLIC);
+            Key private_ = new Key(n, KeyType.PRIVATE, d);
+            return new KeyPair(private_, public_);
+        }
     }
 
 

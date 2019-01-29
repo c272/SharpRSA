@@ -6,8 +6,8 @@ namespace SharpRSA
 {
     public class RSA
     {
-
-        public static Dictionary<BigInteger, BigInteger> GenerateKeyPair(int bitlength)
+        //Generates a keypair of the required bit length, and returns it.
+        public static KeyPair GenerateKeyPair(int bitlength)
         {
             //Generating primes, checking if the GCD of (n-1)(p-1) and e is 1.
             BigInteger q,p,n,x = new BigInteger();
@@ -31,9 +31,7 @@ namespace SharpRSA
             d = Maths.ExtendedEuclidean((1 / Constants.e), x);
 
             //Returning results.
-            var results = new Dictionary<BigInteger, BigInteger>();
-            //placeholder
-            return results;
+            return KeyPair.Generate(n, d);
         }
 
         //Finds a prime of the given bit length, to be used as n and p in RSA key calculations.

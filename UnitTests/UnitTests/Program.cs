@@ -42,7 +42,7 @@ namespace UnitTests
 
         //Runs all tests, returning results.
         static List<Test> failed = new List<Test>();
-        static int passed = 0;
+        static float passed = 0;
         private static void RunTests(TestType filterType=TestType.ALL)
         {
             //Creating test database.

@@ -15,6 +15,9 @@ namespace UnitTests
         {
             //Adding Maths unit tests.
             AddTest(RabinMillerKnownPrimes, TestType.MATHS_TEST, "Rabin Miller Known Primes");
+            AddTest(BigIntegerPaddingConsistency, TestType.MATHS_TEST, "BigInt Padding Consistency");
+
+            //Adding RSA unit tests.
             AddTest(FindPrimeSmallbit, TestType.RSA_TEST, "Find Prime Smallbit");
             AddTest(FindPrimeLargebit, TestType.RSA_TEST, "Find Prime Largebit");
         }
@@ -79,6 +82,42 @@ namespace UnitTests
 
             //No primes found in 10 tries, test failed.
             return false;
+        }
+
+        //Testing the BigInteger class for a reliable byte padding method.
+        public bool BigIntegerPaddingConsistency()
+        {
+            byte[] b = { 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00 };
+            byte[] nopad = { 0x01, 0x00, 0xFF };
+            byte[] singlepad = { 0x01, 0x00, 0xFF, 0x00 };
+            var big = new BigInteger(b).ToByteArray();
+
+            if (big.SequenceEqual(nopad))
+            {
+                Console.WriteLine("BigInteger is using no padding, converted and returned unsigned are identical.");
+                return true;
+            } else if (big.SequenceEqual(singlepad))
+            {
+                Console.WriteLine("BigInteger is using single padding, one extra blank byte appended for unsigned.");
+                return true;
+            }
+            {
+                Console.WriteLine("The converted and non-converted data differ as such:");
+                Console.WriteLine("ORIGINAL: " + Utils.RawByteString(b));
+                Console.WriteLine("CONVERTED: " + Utils.RawByteString(big));
+                Console.WriteLine("No pattern detected.");
+                return false;
+            }
+            
+        }
+
+        //Testing the key generation method to check valid keys are returned.
+        public bool RSAKeyGen()
+        {
+            //Generating a test 1024 bit keypair.
+            KeyPair keys = RSA.GenerateKeyPair(1024);
+            return true;
+
         }
     }
 }

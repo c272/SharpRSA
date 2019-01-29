@@ -85,5 +85,43 @@ namespace SharpRSA
             //Returning working BigInt.
             return new BigInteger(randomBytes);
         }
+
+        //Encrypts a set of bytes when given a public key.
+        public static byte[] EncryptBytes(byte[] bytes, Key public_key)
+        {
+            //Checking that the size of the bytes is less than n, and greater than 1.
+            if (1>=bytes.Length || bytes.Length>=public_key.n)
+            {
+                throw new Exception("Bytes given are longer than length of key element n (" + bytes.Length + " bytes).");
+            }
+
+            //Padding the array to the size of n.
+            byte[] bytes_padded = new byte[public_key.n.ToByteArray().Length];
+            Array.Copy(bytes, bytes_padded, bytes.Length);
+            
+            //Setting high byte right before the data, to prevent data loss.
+            bytes_padded[bytes.Length] = 0xFF;
+
+            //Computing as a BigInteger the encryption operation.
+            var cipher_bigint = new BigInteger();
+            var padded_bigint = new BigInteger(bytes_padded);
+            cipher_bigint = BigInteger.ModPow(padded_bigint, public_key.e, public_key.n);
+
+            //Returning the byte array of encrypted bytes.
+            return cipher_bigint.ToByteArray();
+        }
+
+        //Decrypts a set of bytes when given a private key.
+        public static byte[] DecryptBytes(byte[] bytes, Key private_key)
+        {
+            //Checking that the private key is legitimate, and contains d.
+            if (private_key.type!=KeyType.PRIVATE)
+            {
+                throw new Exception("Private key given for decrypt is classified as non-private in instance.");
+            }
+
+            //Converting bytes to an unsigned integer, sending for decrypt.
+            
+        }
     }
 }

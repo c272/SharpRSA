@@ -41,11 +41,11 @@ namespace SharpRSA
     public class Key
     {
         //Hidden key constants, n and e are public key variables.
-        private BigInteger n;
-        private int e = Constants.e;
+        public readonly BigInteger n;
+        public readonly int e = Constants.e;
 
         //Optional null variable D.
-        private BigFloat d;
+        public readonly BigFloat d;
 
         //Variable for key type.
         public KeyType type;

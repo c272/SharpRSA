@@ -14,83 +14,73 @@ namespace SharpRSA
         /// </summary>
         /// <param name="num">The number to check for being likely prime.</param>
         /// <returns></returns>
-        public static bool RabinMillerTest(BigInteger n, int accuracy_amt)
+        public static bool RabinMillerTest(BigInteger source, int certainty)
         {
-            //Zero and one are not prime.
-            if (n < 2)
+            //Filter out basic primes.
+            if (source == 2 || source == 3)
             {
-                return false;
-            }
-            else if (n == 2)
-            {
-                //Catching for two.
                 return true;
             }
-            else if (n % 2 == 0 || n % 3 == 0 || n % 5 == 0 || n % 7 == 0 || n % 11 == 0) 
+            //Below 2, and % 0? Not prime.
+            if (source < 2 || source % 2 == 0)
             {
-                //No multiples of two, three, five, seven, eleven.
                 return false;
             }
 
-            //Finding n-1 = 2^k * m.
-            long k = 1;
-            int m = 1;
-            BigFloat previousResult = 0;
-            while (true)
-            {
-                BigFloat n_float = new BigFloat(n);
-                BigFloat k_exp = BigFloat.Parse((Math.Pow(2, k)).ToString());
+            //Finding even integer below number.
+            BigInteger d = source - 1;
+            int s = 0;
 
-                var result = BigFloat.Divide(n_float, k_exp);
-                
-                //Checking for a decimal return, breaking if so.
-                if (result%1!=0)
-                {
-                    //Returning to previous K value, which provided an integer.
-                    k--;
-                    m = int.Parse(previousResult.ToString());
-                    break;
-                }
-                
-                //Incrementing and setting variables for next loop.
-                previousResult = result;
-                k++;
+            while (d % 2 == 0)
+            {
+                d /= 2;
+                s += 1;
             }
 
-            //Looping k times, performing modulus.
-            for (int i = 0; i < accuracy_amt; i++)
+            //Getting a random BigInt using bytes.
+            Random rng = new Random(Environment.TickCount);
+            byte[] bytes = new byte[source.ToByteArray().LongLength];
+            BigInteger a;
+
+            //Looping to check random factors.
+            for (int i = 0; i < certainty; i++)
             {
-                //Picking a random number between 1 and n-2.
-                byte[] randBytes = new byte[n.ToByteArray().Length-1];
-                rand.NextBytes(randBytes);
-                BigInteger offset = new BigInteger(randBytes);
-
-                //Random number a has been selected.
-                BigInteger a = n - offset;
-
-                //Performing test operation a^m % n
-                var x = BigInteger.Pow(a, m) % n;
-                if (x==1 || x==n-1)
+                do
                 {
-                    //Could still be prime, continue.
+                    //Generating new random bytes to check as a factor.
+                    rng.NextBytes(bytes);
+                    a = new BigInteger(bytes);
+                }
+                while (a < 2 || a >= source - 2);
+
+                //Checking for x=1 or x=s-1.
+                BigInteger x = BigInteger.ModPow(a, d, source);
+                if (x == 1 || x == source - 1)
+                {
                     continue;
                 }
 
-                //Checking for the possibility of primality after x!=1 and x!=n-1.
-                for (int j=0; j<k-1; j++)
+                //Iterating to check for prime.
+                for (int r = 1; r < s; r++)
                 {
-                    x = BigInteger.Pow(x, 2) % n;
-                    if (x==n-1)
+                    x = BigInteger.ModPow(x, 2, source);
+                    if (x == 1)
                     {
-                        continue;
+                        return false;
+                    }
+                    else if (x == source - 1)
+                    {
+                        break;
                     }
                 }
 
-                //Not prime, with acc_amt*someconstant certainty.
-                return false;
+                if (x != source - 1)
+                {
+                    return false;
+                }
             }
 
-            //Loop has finished without finding a composite, return prime.
+            //All tests have failed to prove composite, so return prime.
             return true;
         }
 
@@ -102,14 +92,53 @@ namespace SharpRSA
         }
 
         /// <summary>
-        /// Performs an Extended Euclidian algorithm on parameters a and b, returning d,
-        /// such that d = gcd(a,b);
+        /// Performs a modular inverse on u and v,
+        /// such that d = gcd(u,v);
         /// </summary>
-        /// <returns>D, such that D = gcd(a,b).</returns>
-        public static BigInteger ExtendedEuclidean(BigInteger a, BigInteger b)
+        /// <returns>D, such that D = gcd(u,v).</returns>
+        public static BigInteger ModularInverse(BigInteger u, BigInteger v)
         {
-            //Modular inverse can be executed using a BigInteger class function.
-            return BigInteger.ModPow(a, b-1, b);
+            //Declaring new variables on the heap.
+            BigInteger inverse, u1, u3, v1, v3, t1, t3, q = new BigInteger();
+            //Staying on the stack, quite small, so no need for extra memory time.
+            BigInteger iteration;
+
+            //Stating initial variables.
+            u1 = 1;
+            u3 = u;
+            v1 = 0;
+            v3 = v;
+
+            //Beginning iteration.
+            iteration = 1;
+            while (v3 != 0)
+            {
+                //Divide and sub q, t3 and t1.
+                q = u3 / v3;
+                t3 = u3 % v3;
+                t1 = u1 + q * v1;
+
+                //Swap variables for next pass.
+                u1 = v1; v1 = t1; u3 = v3; v3 = t3;
+                iteration = -iteration;
+            }
+
+            if (u3 != 1)
+            {
+                //No inverse, return 0.
+                return 0;
+            }
+            else if (iteration < 0)
+            {
+                inverse = v - u1;
+            }
+            else
+            {
+                inverse = u1;
+            }
+
+            //Return.
+            return inverse;
         }
 
         /// <summary>
@@ -131,7 +160,7 @@ namespace SharpRSA
                 }
             }
 
-            //Returning.
+            //Returning check.
             return a == 0 ? b : a;
         }
     }

@@ -22,6 +22,7 @@ namespace UnitTests
             AddTest(FindPrimeSmallbit, TestType.RSA_TEST, "Find Prime Smallbit");
             AddTest(FindPrimeLargebit, TestType.RSA_TEST, "Find Prime Largebit");
             AddTest(RSAKeyGen, TestType.RSA_TEST, "RSA Keygen Validity");
+            AddTest(RSACoverageTest, TestType.RSA_TEST, "RSA Coverage Testing");
         }
 
         public void AddTest(TestDelegate t, TestType type, string n)
@@ -34,7 +35,7 @@ namespace UnitTests
         {
             foreach (var prime in Constants.primes) {
                 //Testing if known primes appear as such.
-                bool isPrime = Maths.RabinMillerTest(new BigInteger(prime), 10);
+                bool isPrime = Maths.RabinMillerTest(new BigInteger(prime), 40);
                 if (!isPrime)
                 {
                     Console.WriteLine("DISCREPANCY: Known prime " + prime + " returned false from the RabinMiller test.");
@@ -113,18 +114,10 @@ namespace UnitTests
             
         }
 
-        //Testing the encryption and decryption methods to check small byte packages.
-        public bool RSASmallbytes()
-        {
-            byte[] package = { 0xFF, 0x2A, 0xBF, 0x00, 0x00 };
-            return false;
-            
-        }
-
         //Testing the Extended Euclidian modular inverse function.
         public bool EEModInv()
         {
-            BigInteger result = Maths.ExtendedEuclidean(129031, 13);
+            BigInteger result = Maths.ModularInverse(129031, 13);
             if (result!=11)
             {
                 return false;
@@ -136,10 +129,10 @@ namespace UnitTests
         public bool RSAKeyGen()
         {
             //Generating a test 1024 bit keypair.
-            KeyPair keys = RSA.GenerateKeyPair(64);
+            KeyPair keys = RSA.GenerateKeyPair(1024);
 
             //Setting up a payload, testing for perfect encrypt/decrypt.
-            byte[] package = { 0xFF, 0x2A, 0xBF, 0x00, 0x00 };
+            byte[] package = { 0xFF, 0x2A, 0x00, 0x00, 0x01, 0x00 };
             byte[] encrypted = RSA.EncryptBytes(package, keys.public_);
             byte[] decrypted = RSA.DecryptBytes(encrypted, keys.private_);
 
@@ -152,6 +145,30 @@ namespace UnitTests
                 Console.WriteLine("Returned bytes from RSA encrypt/decrypt differed, resulting in failure.");
                 Console.WriteLine("ORIGINAL BYTES: " + Utils.RawByteString(package));
                 Console.WriteLine("FAILED BYTES:" + Utils.RawByteString(decrypted));
+                return false;
+            }
+        }
+
+        //Testing the encryption and decryption method with a randomly generated long set of 1020 bits.
+        public bool RSACoverageTest()
+        {
+            KeyPair keys = RSA.GenerateKeyPair(1024);
+
+            //Randomly filling a 126 byte array. (leaving some free space, n can sometimes (1%) be a bit smaller than 128 bytes).
+            byte[] b = new byte[126];
+            Random rand = new Random(Environment.TickCount);
+            rand.NextBytes(b);
+
+            //Encrypting and decrypting, testing reliability.
+            byte[] encrypted = RSA.EncryptBytes(b, keys.public_);
+            byte[] decrypted = RSA.DecryptBytes(encrypted, keys.private_);
+            if (decrypted.SequenceEqual(b))
+            {
+                Console.WriteLine("SUCCESS: Randomized RSA payload encrypted and decrypted successfully.");
+                return true;
+            } else
+            {
+                Console.WriteLine("Randomized RSA payload failed to encrypt and decrypt without data loss. Check SharpRSA package for errors.");
                 return false;
             }
         }

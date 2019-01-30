@@ -42,13 +42,13 @@ namespace UnitTests
 
         //Runs all tests, returning results.
         static List<Test> failed = new List<Test>();
-        static float passed = 0;
+        static List<Test> passed = new List<Test>();
         private static void RunTests(TestType filterType=TestType.ALL)
         {
             //Creating test database.
             TestDB tdb = new TestDB();
             //Resetting variables.
-            passed = 0;
+            passed = new List<Test>();
             failed = new List<Test>();
 
             //Adding prepending test data to console.
@@ -80,7 +80,7 @@ namespace UnitTests
 
             //Switching for % statistics colour.
             Console.Write("\nPercentage of Passing Tests: ");
-            float percentagePassed = (passed / (passed + failed.Count)) * 100;
+            float percentagePassed = (passed.Count / (passed.Count + failed.Count)) * 100;
             if (percentagePassed>90)
             {
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -98,7 +98,7 @@ namespace UnitTests
             //Printing statistics.
             Console.Write(percentagePassed + "%\n");
             Console.ResetColor();
-            Console.WriteLine("--------------\nTESTS COMPLETED: {0}\nTESTS PASSED: {1}\nTESTS FAILED: {2}\n--------------", failed.Count + passed, passed, failed.Count);
+            Console.WriteLine("--------------\nTESTS COMPLETED: {0}\nTESTS PASSED: {1}\nTESTS FAILED: {2}\n--------------", failed.Count + passed.Count, passed.Count, failed.Count);
             if (failed.Count != 0)
             {
                 Console.WriteLine("Tests Failed:\n");
@@ -124,7 +124,7 @@ namespace UnitTests
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(test.name + " test passed.");
                 Console.ResetColor();
-                passed++;
+                passed.Add(test);
             }
         }
     }

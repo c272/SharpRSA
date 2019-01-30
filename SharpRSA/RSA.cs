@@ -20,16 +20,12 @@ namespace SharpRSA
                 p = FindPrime(bitlength / 2);
             } while (p % Constants.e == 1);
 
+            //Setting n as QP, phi (represented here as x) to tortiary.
             n = q * p;
             x = (p - 1) * (q - 1);
 
             //Computing D such that ed = 1%x.
-            d = BigIntegerExtensions.modinv(Constants.e, x);
-
-            if ((d*Constants.e)%x!=1) {
-                Console.WriteLine("INVALID D VALUE");
-                Console.WriteLine(d * Constants.e + " != " + 1 % x);
-            }
+            d = Maths.ModularInverse(Constants.e, x);
 
             //Returning results.
             return KeyPair.Generate(n, d);
@@ -96,12 +92,13 @@ namespace SharpRSA
                 throw new Exception("Bytes given are longer than length of key element n (" + bytes.Length + " bytes).");
             }
 
-            //Padding the array to the size of n.
-            byte[] bytes_padded = new byte[public_key.n.ToByteArray().Length];
+            //Padding the array to unsign.
+            byte[] bytes_padded = new byte[bytes.Length+2];
             Array.Copy(bytes, bytes_padded, bytes.Length);
+            bytes_padded[bytes_padded.Length-1] = 0x00;
             
             //Setting high byte right before the data, to prevent data loss.
-            bytes_padded[bytes.Length] = 0xFF;
+            bytes_padded[bytes_padded.Length-2] = 0xFF;
 
             //Computing as a BigInteger the encryption operation.
             var cipher_bigint = new BigInteger();
@@ -121,13 +118,9 @@ namespace SharpRSA
                 throw new Exception("Private key given for decrypt is classified as non-private in instance.");
             }
 
-            //Padding bytes to ensure unsigned int comparison.
-            byte[] bytes_padded = new byte[private_key.n.ToByteArray().Length];
-            Array.Copy(bytes, bytes_padded, bytes.Length);
-
             //Decrypting.
             var plain_bigint = new BigInteger();
-            var padded_bigint = new BigInteger(bytes_padded);
+            var padded_bigint = new BigInteger(bytes);
             plain_bigint = BigInteger.ModPow(padded_bigint, private_key.d, private_key.n);
 
             //Removing all padding bytes, including the marker 0xFF.
@@ -138,13 +131,14 @@ namespace SharpRSA
                 if (plain_bytes[i]==0xFF)
                 {
                     lengthToCopy = i;
+                    break;
                 }
             }
 
             //Checking for a failure to find marker byte.
             if (lengthToCopy==-1)
             {
-                throw new Exception("Marker byte for padding (0xFF) not found in plain bytes. Decryption failed?");
+                throw new Exception("Marker byte for padding (0xFF) not found in plain bytes.\nPossible Reasons:\n1: PAYLOAD TOO LARGE\n2: KEYS INVALID\n3: ENCRYPT/DECRYPT FUNCTIONS INVALID");
             }
 
             //Copying into return array, returning.

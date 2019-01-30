@@ -23,6 +23,8 @@ namespace UnitTests
             AddTest(FindPrimeLargebit, TestType.RSA_TEST, "Find Prime Largebit");
             AddTest(RSAKeyGen, TestType.RSA_TEST, "RSA Keygen Validity");
             AddTest(RSACoverageTest, TestType.RSA_TEST, "RSA Coverage Testing");
+            AddTest(LockedBytesReliability, TestType.RSA_TEST, "LockedBytes RSA Reliability");
+            //AddTest(RSAClassEncryption, TestType.RSA_TEST, "RSA Class Encryption");
         }
 
         public void AddTest(TestDelegate t, TestType type, string n)
@@ -172,5 +174,40 @@ namespace UnitTests
                 return false;
             }
         }
+        
+        //Testing the locked bytes class.
+        public bool LockedBytesReliability()
+        {
+            KeyPair test = RSA.GenerateKeyPair(64);
+            byte[] b = { 0xFF, 0x00, 0x00, 0xFF };
+            LockedBytes locked = new LockedBytes(b, test.public_);
+            byte[] unlocked = locked.DecryptBytes(test.private_);
+
+            if (b.SequenceEqual(unlocked))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
+        //Testing the ability of the RSA module to serialize and deserialize a class.
+        public bool RSAClassEncryption()
+        {
+            var keypair = RSA.GenerateKeyPair(1024);
+            var dummy = new DummyClass();
+            LockedBytes encrypted = RSA.EncryptClass(dummy, keypair.public_);
+            DummyClass decrypted = (DummyClass)RSA.DecryptClass(encrypted, keypair.private_);
+            return true;
+        }
+    }
+
+    //Some additional testing classes.
+    [Serializable]
+    public class DummyClass
+    {
+        //A dummy class with a public integer always set to one, for RSA testing.
+        public int dummy = 1;
     }
 }

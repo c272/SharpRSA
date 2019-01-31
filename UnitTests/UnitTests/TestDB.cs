@@ -24,7 +24,7 @@ namespace UnitTests
             AddTest(RSAKeyGen, TestType.RSA_TEST, "RSA Keygen Validity");
             AddTest(RSACoverageTest, TestType.RSA_TEST, "RSA Coverage Testing");
             AddTest(LockedBytesReliability, TestType.RSA_TEST, "LockedBytes RSA Reliability");
-            //AddTest(RSAClassEncryption, TestType.RSA_TEST, "RSA Class Encryption");
+            AddTest(ClassEncryption, TestType.RSA_TEST, "RSA Class Encryption");
         }
 
         public void AddTest(TestDelegate t, TestType type, string n)
@@ -179,7 +179,8 @@ namespace UnitTests
         public bool LockedBytesReliability()
         {
             KeyPair test = RSA.GenerateKeyPair(64);
-            byte[] b = { 0xFF, 0x00, 0x00, 0xFF };
+            byte[] b = { 0xFF };
+
             LockedBytes locked = new LockedBytes(b, test.public_);
             byte[] unlocked = locked.DecryptBytes(test.private_);
 
@@ -192,14 +193,25 @@ namespace UnitTests
             }
         }
 
-        //Testing the ability of the RSA module to serialize and deserialize a class.
-        public bool RSAClassEncryption()
+        //Testing class encryption in RSA.
+        public bool ClassEncryption()
         {
-            var keypair = RSA.GenerateKeyPair(1024);
+            KeyPair test = RSA.GenerateKeyPair(64);
+
             var dummy = new DummyClass();
-            LockedBytes encrypted = RSA.EncryptClass(dummy, keypair.public_);
-            DummyClass decrypted = (DummyClass)RSA.DecryptClass(encrypted, keypair.private_);
-            return true;
+
+            //Test variable for integrity check.
+            dummy.dummy = 1;
+
+            LockedBytes encryptedDummy = RSA.EncryptClass(dummy, test.public_);
+            var newdummy = RSA.DecryptClass<DummyClass>(encryptedDummy, test.private_);
+            if (newdummy.dummy==dummy.dummy)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
     }
 

@@ -18,17 +18,24 @@ namespace SharpRSA
             initialByteLength = b.Length;
             maxChunkLength = public_.n.ToByteArray().Length - 2;
             chunkModulus = b.Length % maxChunkLength;
-            chunks = (int)(Math.Ceiling((double)(b.Length/maxChunkLength))+0.5);
-            Console.WriteLine("chunks: " + chunks);
+            float unroundedChunks = (float)b.Count() / (float)maxChunkLength;
+            chunks = (int)Math.Ceiling(unroundedChunks);
 
             for (int i=0; i<chunks; i++)
             {
                 //Copying the selected part of array b to the new chunk created.
                 byte[] unencrypted = new byte[maxChunkLength];
-                Array.Copy(b, i * maxChunkLength, unencrypted, 0, maxChunkLength);
+                byte[] encrypted;
+                if (i == chunks - 1 && chunkModulus != 0)
+                {
+                    unencrypted = new byte[chunkModulus];
+                    Array.Copy(b, i * maxChunkLength, unencrypted, 0, chunkModulus);
+                }
+                else
+                {
+                    Array.Copy(b, i * maxChunkLength, unencrypted, 0, maxChunkLength);
+                }
 
-                //Encrypting that chunk.
-                byte[] encrypted = new byte[maxChunkLength];
                 encrypted = RSA.EncryptBytes(unencrypted, public_);
 
                 //Adding to list.
@@ -43,11 +50,6 @@ namespace SharpRSA
         /// <returns></returns>
         public byte[] DecryptBytes(Key private_)
         {
-            Console.WriteLine("byteChunks Length: " + byteChunks.Count);
-            Console.WriteLine("Chunks: " + chunks);
-            Console.WriteLine("Chunk Size: " + maxChunkLength);
-            Console.WriteLine("Chunk Modulus: " + chunkModulus);
-
             //Creating a list of decrypted padded bytes.
             List<byte[]> decryptedList = new List<byte[]>();
             for (int i=0; i<chunks; i++)
@@ -55,18 +57,11 @@ namespace SharpRSA
                 decryptedList.Add(RSA.DecryptBytes(byteChunks[i], private_));
             }
 
-            //Removing any extra padding on the last byte array.
-            if (chunkModulus != 0)
-            {
-                byte[] nopadding = new byte[chunkModulus];
-                Array.Copy(decryptedList[decryptedList.Count - 1], nopadding, chunkModulus);
-                decryptedList[decryptedList.Count - 1] = nopadding;
-            }
-
             //Converting back to a single byte array, returning.
             return decryptedList.SelectMany(a => a).ToArray();
         }
-
+        
+        //Private instance-specific properties.
         private int chunkModulus;
         private int initialByteLength;
         private int chunks;

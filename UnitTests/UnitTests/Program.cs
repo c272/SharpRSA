@@ -80,7 +80,7 @@ namespace UnitTests
 
             //Switching for % statistics colour.
             Console.Write("\nPercentage of Passing Tests: ");
-            float percentagePassed = (passed.Count / (passed.Count + failed.Count)) * 100;
+            float percentagePassed = ((float)passed.Count / (float)(passed.Count + failed.Count)) * 100;
             if (percentagePassed>90)
             {
                 Console.ForegroundColor = ConsoleColor.DarkGreen;

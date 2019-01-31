@@ -89,7 +89,7 @@ namespace SharpRSA
         public static byte[] EncryptBytes(byte[] bytes, Key public_key)
         {
             //Checking that the size of the bytes is less than n, and greater than 1.
-            if (1>=bytes.Length || bytes.Length>=public_key.n)
+            if (1>bytes.Length || bytes.Length>=public_key.n.ToByteArray().Length)
             {
                 throw new Exception("Bytes given are longer than length of key element n (" + bytes.Length + " bytes).");
             }
@@ -165,7 +165,7 @@ namespace SharpRSA
         }
 
         //Method to deserialize a given class and decrypt.
-        public static object DecryptClass(LockedBytes encrypted, Key private_)
+        public static T DecryptClass<T>(LockedBytes encrypted, Key private_)
         {
             //Decrypting bytes.
             byte[] decrypted = encrypted.DecryptBytes(private_);
@@ -177,7 +177,7 @@ namespace SharpRSA
                 memStream.Write(decrypted, 0, decrypted.Length);
                 memStream.Seek(0, SeekOrigin.Begin);
                 var obj = binForm.Deserialize(memStream);
-                return obj;
+                return (T)obj;
             }
         }
     }

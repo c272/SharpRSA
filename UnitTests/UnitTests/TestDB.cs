@@ -179,7 +179,9 @@ namespace UnitTests
         public bool LockedBytesReliability()
         {
             KeyPair test = RSA.GenerateKeyPair(64);
-            byte[] b = { 0xFF };
+            byte[] b = new byte[1024];
+            var random = new Random(Environment.TickCount);
+            random.NextBytes(b);
 
             LockedBytes locked = new LockedBytes(b, test.public_);
             byte[] unlocked = locked.DecryptBytes(test.private_);

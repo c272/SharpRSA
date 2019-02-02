@@ -52,7 +52,7 @@ namespace UnitTests
             failed = new List<Test>();
 
             //Adding prepending test data to console.
-            Console.WriteLine("SHARPRSA UNIT TEST ENVIRONMENT");
+            Console.WriteLine("LARRY'S UNIT TEST ENVIRONMENT");
             Console.WriteLine("Machine: " + Environment.MachineName);
             Console.WriteLine("OS: " + Environment.OSVersion);
             Console.WriteLine("Framework Version: " + Environment.Version);

@@ -43,21 +43,22 @@ namespace SharpRSA
     /// Class to contain RSA key values for public and private keys. All values readonly and protected
     /// after construction, type set on construction.
     /// </summary>
-    [DataContract]
+    [DataContract(Name = "Key", Namespace = "SharpRSA")]
     public class Key
     {
         //Hidden key constants, n and e are public key variables.
-        [DataMember]
-        public readonly BigInteger n;
-        [DataMember]
-        public readonly int e = Constants.e;
+        [DataMember(Name = "n")]
+        public BigInteger n { get; set; }
+        public int e = Constants.e;
+        
 
         //Optional null variable D.
         //This should never be shared as a DataMember, by principle this should not be passed over a network.
         public readonly BigInteger d;
 
         //Variable for key type.
-        public KeyType type;
+        [DataMember(Name = "type")]
+        public KeyType type { get; set; }
 
         //Constructor that sets values once, values then permanently unwriteable.
         public Key(BigInteger n_, KeyType type_, BigInteger d_)
@@ -82,7 +83,7 @@ namespace SharpRSA
             type = type_;
         }
     }
-
+    
     public enum KeyType
     {
         PUBLIC,

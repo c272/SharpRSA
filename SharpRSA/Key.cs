@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace SharpRSA
@@ -8,11 +9,15 @@ namespace SharpRSA
     /// <summary>
     /// Wrapper KeyPair class, for the case when people 
     /// </summary>
+    [DataContract]
     public class KeyPair
     {
         //After assignment, the keys cannot be touched.
+        [DataMember]
         public readonly Key private_;
+        [DataMember]
         public readonly Key public_;
+
         public KeyPair(Key private__, Key public__)
         {
             private_ = private__;
@@ -38,13 +43,17 @@ namespace SharpRSA
     /// Class to contain RSA key values for public and private keys. All values readonly and protected
     /// after construction, type set on construction.
     /// </summary>
+    [DataContract]
     public class Key
     {
         //Hidden key constants, n and e are public key variables.
+        [DataMember]
         public readonly BigInteger n;
+        [DataMember]
         public readonly int e = Constants.e;
 
         //Optional null variable D.
+        //This should never be shared as a DataMember, by principle this should not be passed over a network.
         public readonly BigInteger d;
 
         //Variable for key type.

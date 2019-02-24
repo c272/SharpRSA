@@ -8,6 +8,11 @@ namespace SharpRSA
     public class LockedBytes
     {
         /// <summary>
+        /// This constructor makes LockedBytes nullable.
+        /// </summary>
+        public LockedBytes() { }
+
+        /// <summary>
         /// Parses, chunks and encrypts the bytes, storing as a list of encrypted byte arrays.
         /// </summary>
         /// <param name="b">The bytes to encrypt.</param>

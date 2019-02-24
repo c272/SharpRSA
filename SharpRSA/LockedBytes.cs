@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace SharpRSA
 {
+    [DataContract]
     public class LockedBytes
     {
         /// <summary>
@@ -66,11 +68,16 @@ namespace SharpRSA
             return decryptedList.SelectMany(a => a).ToArray();
         }
         
-        //Private instance-specific properties.
-        private int chunkModulus;
-        private int initialByteLength;
-        private int chunks;
-        private int maxChunkLength;
-        private List<byte[]> byteChunks = new List<byte[]>();
+        //Serializable instance-specific properties.
+        [DataMember]
+        public int chunkModulus;
+        [DataMember]
+        public int initialByteLength;
+        [DataMember]
+        public int chunks;
+        [DataMember]
+        public int maxChunkLength;
+        [DataMember]
+        public List<byte[]> byteChunks = new List<byte[]>();
     }
 }

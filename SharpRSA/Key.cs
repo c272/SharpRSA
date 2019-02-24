@@ -49,6 +49,7 @@ namespace SharpRSA
         //Hidden key constants, n and e are public key variables.
         [DataMember(Name = "n")]
         public BigInteger n { get; set; }
+        [DataMember(Name = "e")]
         public int e = Constants.e;
         
 

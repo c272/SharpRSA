@@ -10,6 +10,7 @@ namespace SharpRSA
     /// Wrapper KeyPair class, for the case when people 
     /// </summary>
     [DataContract]
+    [Serializable]
     public class KeyPair
     {
         //After assignment, the keys cannot be touched.
@@ -44,6 +45,7 @@ namespace SharpRSA
     /// after construction, type set on construction.
     /// </summary>
     [DataContract(Name = "Key", Namespace = "SharpRSA")]
+    [Serializable]
     public class Key
     {
         //Hidden key constants, n and e are public key variables.

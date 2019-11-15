@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 namespace SharpRSA
 {
     [DataContract]
+    [Serializable]
     public class LockedBytes
     {
         /// <summary>

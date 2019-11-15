@@ -7,7 +7,7 @@ using System.Text;
 namespace SharpRSA
 {
     /// <summary>
-    /// Wrapper KeyPair class, for the case when people 
+    /// Wrapper KeyPair class, for the case when people generate keys locally.
     /// </summary>
     [DataContract]
     [Serializable]

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace SharpRSA
 {
@@ -11,7 +9,7 @@ namespace SharpRSA
     /// </summary>
     [DataContract]
     [Serializable]
-    public class KeyPair
+    public sealed class KeyPair
     {
         //After assignment, the keys cannot be touched.
         [DataMember]
@@ -53,7 +51,7 @@ namespace SharpRSA
         public BigInteger n { get; set; }
         [DataMember(Name = "e")]
         public int e = Constants.e;
-        
+
 
         //Optional null variable D.
         //This should never be shared as a DataMember, by principle this should not be passed over a network.
@@ -67,7 +65,7 @@ namespace SharpRSA
         public Key(BigInteger n_, KeyType type_, BigInteger d_)
         {
             //Catching edge cases for invalid input.
-            if (type_==KeyType.PRIVATE && d_<2) { throw new Exception("Constructed as private, but invalid d value provided."); }
+            if (type_ == KeyType.PRIVATE && d_ < 2) { throw new Exception("Constructed as private, but invalid d value provided."); }
 
             //Setting values.
             n = n_;
@@ -86,7 +84,7 @@ namespace SharpRSA
             type = type_;
         }
     }
-    
+
     public enum KeyType
     {
         PUBLIC,
